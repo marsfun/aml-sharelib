@@ -56,7 +56,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
             env.SVN_REVISION = SVN_REVISION
             env.CODE_COMMIT = SVN_REVISION
         }
-        echo "seesee model folder"
+        echo "seesee model folder2"
         // sh '''
         //     ls -l ${source.relative_directory}
         // '''
