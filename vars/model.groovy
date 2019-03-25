@@ -57,11 +57,32 @@ def buildImage(Map runtime,Map source,Map image,Map build){
             env.CODE_COMMIT = SVN_REVISION
         }
         echo "seesee model folder"
-        sh '''
-            ls -l ${source.relative_directory}
+        // sh '''
+        //     ls -l ${source.relative_directory}
+        // '''
 
-        '''
-
+    }
+    dir(source.relative_directory) {
+        retry(build.retry_count) {
+            if (image.credentialId != '') {
+                withCredentials([usernamePassword(credentialsId: image.credentialId, passwordVariable: 'PASSWD', usernameVariable: 'USER')]) {
+                    sh "docker login ${image.repo} -u ${USER} -p ${PASSWD}"
+                }
+            }
+            def content= 'FROM _BASE_IMAGE_\n'+
+                'ARG MODEL=chicago-taxi\n'+
+                'ADD ${MODEL} ${MODEL_BASE_PATH}/${MODEL}\n'+
+                'ENV MODEL_NAME=${MODEL}'
+            content = content.replaceAll('_BASE_IMAGE_',image.baseImage)
+            writeFile file:build.dockerfile_path, text: content
+            sh """
+                docker build -t ${image.repoandtag} -f ${build.dockerfile_path} ${build.arguments} ${build.context}
+                docker push ${image.repoandtag}
+            """
+            if (image_credentialId != '') {
+                sh "docker logout ${image.repoandtag}"
+            }
+        }
     }
 
 
