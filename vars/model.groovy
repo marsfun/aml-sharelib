@@ -59,6 +59,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
     }
     dir(source.relative_directory) {
         retry(build.retry_count) {
+            def repoandtag = image.repo+':'+image.tag
             if (image.credentialId != '') {
                 withCredentials([usernamePassword(credentialsId: image.credentialId, passwordVariable: 'PASSWD', usernameVariable: 'USER')]) {
                     sh "docker login ${image.repo} -u ${USER} -p ${PASSWD}"
@@ -71,11 +72,11 @@ def buildImage(Map runtime,Map source,Map image,Map build){
             content = content.replaceAll('_BASE_IMAGE_',image.baseImage)
             writeFile file:build.dockerfile_path, text: content
             sh """
-                docker build -t ${image.repoandtag} -f ${build.dockerfile_path} ${build.arguments} ${build.context}
-                docker push ${image.repoandtag}
+                docker build -t ${repoandtag} -f ${build.dockerfile_path} ${build.arguments} ${build.context}
+                docker push ${repoandtag}
             """
             if (image.credentialId != '') {
-                sh "docker logout ${image.repoandtag}"
+                sh "docker logout ${repoandtag}"
             }
         }
     }
