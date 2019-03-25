@@ -2,7 +2,7 @@
 def buildImage(Map runtime,Map source,Map image,Map build){
 
     timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
-        if (source_type != "SVN"){
+        if (source.repo_type != "SVN"){
             env.BRANCH = source.branch
             def scmVars = checkout([
                 $class: 'GitSCM',
@@ -27,7 +27,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
             env.GIT_COMMIT = scmVars.GIT_COMMIT
             env.GIT_BRANCH = scmVars.GIT_LOCAL_BRANCH
         }
-        if (source_type == "SVN") {
+        if (source.repo_type == "SVN") {
             if (RELATIVE_DIRECTORY == ''){
                 env.RELATIVE_DIRECTORY = "."
             }
