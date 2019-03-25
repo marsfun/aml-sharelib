@@ -79,7 +79,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                 docker build -t ${image.repoandtag} -f ${build.dockerfile_path} ${build.arguments} ${build.context}
                 docker push ${image.repoandtag}
             """
-            if (image_credentialId != '') {
+            if (image.credentialId != '') {
                 sh "docker logout ${image.repoandtag}"
             }
         }
