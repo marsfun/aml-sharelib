@@ -1,7 +1,10 @@
 #!/usr/bin/env groovy
+import io.alauda.ml.Util
 
 def buildImage(Map runtime,Map source,Map image,Map build){
-
+    def path1 = "./docker/half_plus_three"
+    def cur_ver = Util.changeVersionByUser(path1)
+    println cur_ver
     timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
         if (source.repo_type != "SVN"){
             env.BRANCH = source.branch
