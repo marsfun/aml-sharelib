@@ -2,9 +2,11 @@
 import io.alauda.ml.Util
 
 def buildImage(Map runtime,Map source,Map image,Map build){
+    println 'call changeverion'
     def path1 = "./docker/half_plus_three"
     def cur_ver = Util.changeVersionByUser(path1)
     println cur_ver
+    println 'call changeversion end'
     timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
         if (source.repo_type != "SVN"){
             env.BRANCH = source.branch
