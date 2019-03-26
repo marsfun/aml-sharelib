@@ -37,48 +37,39 @@ def getChangeVersionShellScript(){
 
 changeVersionByUser()
 {
-    context=${1}
-    version=${2}
-    # echo "change2 context=${context} version=${version}"
-    for f in `ls ${context}`; do
-        if [ -d "${context}/${f}" ]; then
-            # echo "现在进入" ${context}"/"${f} "检查是不是这个文件夹"
-            # echo "1 context=${context} version=${version}"
-            hasWanted "${context}/${f}" ${version}
-            # echo "2 context=${context} version=${version}"
-            # echo ${f}
-            change2 "${context}/${f}" ${version}
+    context=”\${1}”
+    version="\${2}"
+   
+    for f in `ls "\${context}"`; do
+        if [ -d "\${context}/\${f}" ]; then
+            hasWanted "\${context}/\${f}" \${version}
+            changeVersionByUser "\${context}/\${f}" "\${version}"
         fi
     done 
 }
 hasWanted()
 {
-    # echo "在目录" ${1} "中检查"
     pbfile=0 
     varsfolder=0
     folder=""
-    for ff in `ls ${1}`; do
-        # echo "检查到" ${ff}
-        if [[ -d "${1}/${ff}" && "${ff}" = "variables" ]]; then
+    for ff in `ls "\${1}"`; do
+        if [[ -d "\${1}/\${ff}" && "\${ff}"x = "variables"x ]]; then
             varsfolder=1
         fi
-        if [ -f "${1}/${ff}" ]; then
-            FILE="${1}/${ff}"
-            extension=$(echo ${FILE} | cut -d . -f2)
-            if [[ "pb"x = "${extension}"x ]]; then
+        if [ -f "\${1}/\${ff}" ]; then
+            FILE="\${1}/\${ff}"
+            extension=\$(echo "\${FILE}" | cut -d . -f2)
+            if [[ "pb"x = "\${extension}"x ]]; then
                 pbfile=1
             fi
         fi
-        # echo pbfile=${pbfile} varsfolder=${varsfolder}
-        if [ ${pbfile} -eq 1 -a ${varsfolder} -eq 1 ] ; then 
-            echo ${1}
-            # parent=${1%\/*}
-            # "mv" ${1} ${parent}"/"${2}
+        if [ \${pbfile} -eq 1 -a \${varsfolder} -eq 1 ] ; then 
+            echo \${1}
         fi
     done
 }
-nnn=$(changeVersionByUser ${1} ${2})
-echo $nnn
+nnn=\$(changeVersionByUser \${1} \${2})
+echo \$nnn
 """   
 }
 
