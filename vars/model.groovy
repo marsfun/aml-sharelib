@@ -1,3 +1,4 @@
+#!/usr/bin/env groovy
 
 def buildImage(Map runtime,Map source,Map image,Map build){
 
