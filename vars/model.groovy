@@ -2,11 +2,6 @@
 import io.alauda.ml.Util
 
 def buildImage(Map runtime,Map source,Map image,Map build){
-    println 'call changeverion start' 
-    def path1 = "./docker/half_plus_three"
-    def cur_ver = Util.changeVersionByUser(path1)
-    println cur_ver
-    println 'call changeversion end'
     timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
         if (source.repo_type != "SVN"){
             env.BRANCH = source.branch
@@ -64,6 +59,16 @@ def buildImage(Map runtime,Map source,Map image,Map build){
         }
     }
     dir(source.relative_directory) {
+        def util = new Util()
+        def foundModelPath = sh (script: util.getChangeVersionShellScript(),returnStdout: true).trim()
+        if (foundModelPath==""){
+            error "model files not found"
+        }
+        def afterPath = util.getModelVersionContextPath(foundModelPath,runtime.model_name,runtime.model_version)
+        println("change path ="+afterPath)
+        sh """
+        ls -l $afterPath
+        """
         retry(build.retry_count) {
             def repoandtag = image.repo+':'+image.tag
             if (image.credentialId != '') {
