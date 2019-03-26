@@ -2,7 +2,7 @@
 import io.alauda.ml.Util
 
 def buildImage(Map runtime,Map source,Map image,Map build){
-    println 'call changeverion'
+    println 'call changeverion start' 
     def path1 = "./docker/half_plus_three"
     def cur_ver = Util.changeVersionByUser(path1)
     println cur_ver
