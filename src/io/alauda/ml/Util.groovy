@@ -55,12 +55,12 @@ def getModelVersionContextPath( orig, version){
     }
     // return "".join("/",arr)
    
-    StringBuilder sb = new StringBuilder()
-    lis.eachWithIndex { vv,index->
-        sb.append(vv)
+    def result=""
+    arr.eachWithIndex { vv,index->
+        result+=vv
         if (index!=lis.size()-1){
-            sb.append(spliter)
+            result+=spliter
         }
     }
-    return sb.toString()
+    return result
 }
