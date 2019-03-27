@@ -66,11 +66,10 @@ def buildImage(Map runtime,Map source,Map image,Map build){
             changeModelVersion()    
             {
                 context=\${1}
-                version=\${2}
                 for f in `ls \${context}`; do
                     if [ -d "\${context}/\${f}" ]; then
-                        hasWanted "\${context}/\${f}" \${version}
-                        changeModelVersion "\${context}/\${f}" \${version}
+                        hasWanted "\${context}/\${f}" 
+                        changeModelVersion "\${context}/\${f}"
                     fi
                 done 
             }
@@ -95,7 +94,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     fi
                 done
             }
-            out=\$(changeModelVersion """ +build.context+"/"+runtime.model_name+" "+runtime.model_version+ ")\n"+"echo \$out\n"
+            out=\$(changeModelVersion """ +build.context+"/"+runtime.model_name+ ")\n"+"echo \$out\n"
             ,returnStdout: true).trim()
             
         if (foundModelPath==""){

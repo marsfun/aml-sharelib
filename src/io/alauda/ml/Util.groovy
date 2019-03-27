@@ -42,7 +42,7 @@ package io.alauda.ml
 // """   
 // }
 
-def getModelVersionContextPath( orig, version){
+def getModelVersionContextPath(orig, version){
     def spliter = "/"
     def arr = orig.split(spliter)
 
