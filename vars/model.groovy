@@ -2,6 +2,7 @@
 import io.alauda.ml.Util
 
 def buildImage(Map runtime,Map source,Map image,Map build){
+    
     timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
         if (source.repo_type != "SVN"){
             env.BRANCH = source.branch
@@ -60,16 +61,60 @@ def buildImage(Map runtime,Map source,Map image,Map build){
     }
     dir(source.relative_directory) {
         def util = new Util()
-        def foundModelPath = sh (script: util.getChangeVersionShellScript(),returnStdout: true).trim()
+        def foundModelPath = sh (
+            script: """#!/usr/bin/env bash
+            changeModelVersion()    
+            {
+                context=\${1}
+                version=\${2}
+                for f in `ls \${context}`; do
+                    if [ -d "\${context}/\${f}" ]; then
+                        hasWanted "\${context}/\${f}" \${version}
+                        changeModelVersion "\${context}/\${f}" \${version}
+                    fi
+                done 
+            }
+            hasWanted()
+            {
+                pbfile=0 
+                varsfolder=0
+                folder=""
+                for ff in `ls \${1}`; do
+                    if [[ -d "\${1}/\${ff}" && "\${ff}" = "variables" ]]; then
+                        varsfolder=1
+                    fi
+                    if [ -f "\${1}/\${ff}" ]; then
+                        FILE="\${1}/\${ff}"
+                        extension=\$(echo \${FILE} | cut -d . -f2)
+                        if [[ "pb"x = "\${extension}"x ]]; then
+                            pbfile=1
+                        fi
+                    fi
+                    if [ \${pbfile} -eq 1 -a \${varsfolder} -eq 1 ] ; then 
+                        echo \${1}
+                    fi
+                done
+            }
+            out=\$(changeModelVersion """ +build.context+"/"+runtime.model_name+" "+runtime.model_version+ ")\n"+"echo \$out\n"
+            ,returnStdout: true).trim()
+            
         if (foundModelPath==""){
             error "model files not found"
         }
-        def afterPath = util.getModelVersionContextPath(foundModelPath,runtime.model_name,runtime.model_version)
+        def afterPath = util.getModelVersionContextPath(foundModelPath,runtime.model_version)
         println("change path ="+afterPath)
-        sh """
-        ls -l $afterPath
-        """
+        if (foundModelPath!=afterPath){
+            sh """
+            rm -rf  $afterPath
+            echo "cleanup exists $afterPath"
+            
+            mv $foundModelPath $afterPath
+            echo "change model version from $foundModelPath to $afterPath"
+            """
+        }
+        
         retry(build.retry_count) {
+            
             def repoandtag = image.repo+':'+image.tag
             if (image.credentialId != '') {
                 withCredentials([usernamePassword(credentialsId: image.credentialId, passwordVariable: 'PASSWD', usernameVariable: 'USER')]) {
