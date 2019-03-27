@@ -58,7 +58,7 @@ def getModelVersionContextPath( orig, version){
     def result=""
     arr.eachWithIndex { vv,index->
         result+=vv
-        if (index!=lis.size()-1){
+        if (index!=arr.size()-1){
             result+=spliter
         }
     }
