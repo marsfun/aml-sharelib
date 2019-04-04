@@ -1,6 +1,7 @@
 package io.alauda.ml
 
 def getModelVersionContextPath(orig, version){
+    /*
     def spliter = "/"
     def arr = orig.split(spliter)
 
@@ -17,6 +18,13 @@ def getModelVersionContextPath(orig, version){
         }
     }
     return result
+    */
+
+    def pos = orig.lastIndexOf("/")
+    if(pos==-1){
+        return orig
+    }
+    return orig.substring(0,pos)+"/"+version
 }
 // return (modelname , context)
 def getModelNameAndContext(relativePath){
@@ -26,3 +34,4 @@ def getModelNameAndContext(relativePath){
     }
     return [relativePath.substring(pos+1),relativePath.substring(0,pos)]
 }
+println getModelVersionContextPath("docker/half_plus_three/00000123","13")
