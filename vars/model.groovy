@@ -122,6 +122,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                 if (foundModelPath==""){
                     error "model files not found"
                 }
+                println("foundModelPath ="+foundModelPath)
                 def afterPath = util.getModelVersionContextPath(foundModelPath,runtime.model_version)
                 println("change path ="+afterPath)
                 if (foundModelPath!=afterPath){
