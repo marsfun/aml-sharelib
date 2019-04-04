@@ -7,8 +7,6 @@ def buildImage(Map runtime,Map source,Map image,Map build){
     def instance_name = runtime.meta_instance_name
     def start_state = runtime.start_state
     def err_state = runtime.error_state
-    def util = new Util()
-    (runtime.model_name,build.context)=util.getModelNameAndContext(source.model_path)
 
     try{
         timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
@@ -81,8 +79,10 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                 env.SVN_REVISION = SVN_REVISION
                 env.CODE_COMMIT = SVN_REVISION
             }
-            dir(source.relative_directory) {
-                // def util = new Util()
+            // dir(source.relative_directory) {
+                def util = new Util()
+                (model_name,context)=util.getModelNameAndContext(source.model_path)
+             
                 def foundModelPath = sh (
                     script: """#!/usr/bin/env bash
                     changeModelVersion()    
@@ -116,7 +116,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                             fi
                         done
                     }
-                    out=\$(changeModelVersion """ +build.context+"/"+runtime.model_name+ ")\n"+"echo \$out\n"
+                    out=\$(changeModelVersion """ +context+"/"+model_name+ ")\n"+"echo \$out\n"
                     ,returnStdout: true).trim()
                     
                 if (foundModelPath==""){
@@ -148,14 +148,14 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     content = content.replaceAll('_BASE_IMAGE_',image.baseImage)
                     writeFile file:build.dockerfile_path, text: content
                     sh """
-                        docker build -t ${repoandtag} -f ${build.dockerfile_path} ${build.arguments} ${build.context}
+                        docker build -t ${repoandtag} -f ${build.dockerfile_path} ${build.arguments} ${context}
                         docker push ${repoandtag}
                     """
                     if (image.credentialId != '') {
                         sh "docker logout ${repoandtag}"
                     }
                 }
-            }
+            // }
         }
     }catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e){
         // echo "111 FlowInterruptedException"
