@@ -8,6 +8,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
     def start_state = runtime.start_state
     def err_state = runtime.error_state
 
+
     try{
         timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
             alaudaDevops.withCluster() {
@@ -134,12 +135,12 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     echo "change model version from $foundModelPath to $afterPath"
                     """
                 }
-                
+                util.checkAndExpandImageMap(image) //extract outImageObject
                 retry(build.retry_count) {
-                    def repoandtag = image.repo+':'+image.tag
+                    def repoandtag = image.outImageRepoTag
                     if (image.credentialId != '') {
                         withCredentials([usernamePassword(credentialsId: image.credentialId, passwordVariable: 'PASSWD', usernameVariable: 'USER')]) {
-                            sh "docker login ${image.repo} -u ${USER} -p ${PASSWD}"
+                            sh "docker login ${image.outImageRepo} -u ${USER} -p ${PASSWD}"
                         }
                     }
                     def content= 'FROM _BASE_IMAGE_\n'+
