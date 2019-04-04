@@ -118,11 +118,10 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     }
                     out=\$(changeModelVersion """ +context+"/"+model_name+ ")\n"+"echo \$out\n"
                     ,returnStdout: true).trim()
-                    
+                println("foundModelPath ="+foundModelPath)    
                 if (foundModelPath==""){
                     error "model files not found"
                 }
-                println("foundModelPath ="+foundModelPath)
                 def afterPath = util.getModelVersionContextPath(foundModelPath,runtime.model_version)
                 println("change path ="+afterPath)
                 if (foundModelPath!=afterPath){
