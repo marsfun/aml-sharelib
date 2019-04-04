@@ -8,11 +8,7 @@ def getModelVersionContextPath(orig, version){
         return orig
     }
     arr[arr.length-1] = version
-    for(String in arr){
-
-    }
     // return "".join("/",arr)
-   
     def result=""
     arr.eachWithIndex { vv,index->
         result+=vv
@@ -21,4 +17,12 @@ def getModelVersionContextPath(orig, version){
         }
     }
     return result
+}
+// return (modelname , context)
+def getModelNameAndContext(relativePath){
+    def pos = relativePath.lastIndexOf("/")
+    if(pos==-1){
+        return [relativePath,"."]
+    }
+    return [relativePath.substring(pos+1),relativePath.substring(0,pos)]
 }
