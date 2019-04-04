@@ -7,6 +7,8 @@ def buildImage(Map runtime,Map source,Map image,Map build){
     def instance_name = runtime.meta_instance_name
     def start_state = runtime.start_state
     def err_state = runtime.error_state
+    def util = new Util()
+    (runtime.model_name,build.context)=util.getModelNameAndContext(source.model_path)
 
     try{
         timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
@@ -80,7 +82,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                 env.CODE_COMMIT = SVN_REVISION
             }
             dir(source.relative_directory) {
-                def util = new Util()
+                // def util = new Util()
                 def foundModelPath = sh (
                     script: """#!/usr/bin/env bash
                     changeModelVersion()    
