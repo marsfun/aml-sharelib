@@ -82,7 +82,8 @@ def buildImage(Map runtime,Map source,Map image,Map build){
             // dir(source.relative_directory) {
                 def util = new Util()
                 (model_name,context)=util.getModelNameAndContext(source.model_path)
-             
+                println "extract model_name= "+model_name
+                println "extract context= "+context
                 def foundModelPath = sh (
                     script: """#!/usr/bin/env bash
                     changeModelVersion()    
