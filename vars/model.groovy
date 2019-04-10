@@ -8,7 +8,6 @@ def buildImage(Map runtime,Map source,Map image,Map build){
     def start_state = runtime.start_state
     def err_state = runtime.error_state
 
-
     try{
         timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
             alaudaDevops.withCluster() {
@@ -80,91 +79,85 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                 env.SVN_REVISION = SVN_REVISION
                 env.CODE_COMMIT = SVN_REVISION
             }
-            // dir(source.relative_directory) {
-                def util = new Util()
-                (model_name,context)=util.getModelNameAndContext(source.model_path)
-                println "extract model_name= "+model_name
-                println "extract context= "+context
-                def foundModelPath = sh (
-                    script: """#!/usr/bin/env bash
-                    changeModelVersion()    
-                    {
-                        context=\${1}
-                        for f in `ls \${context}`; do
-                            if [ -d "\${context}/\${f}" ]; then
-                                hasWanted "\${context}/\${f}" 
-                                changeModelVersion "\${context}/\${f}"
-                            fi
-                        done 
-                    }
-                    hasWanted()
-                    {
-                        pbfile=0 
-                        varsfolder=0
-                        folder=""
-                        for ff in `ls \${1}`; do
-                            if [[ -d "\${1}/\${ff}" && "\${ff}" = "variables" ]]; then
-                                varsfolder=1
-                            fi
-                            if [ -f "\${1}/\${ff}" ]; then
-                                FILE="\${1}/\${ff}"
-                                extension=\$(echo \${FILE} | cut -d . -f2)
-                                if [[ "pb"x = "\${extension}"x ]]; then
-                                    pbfile=1
-                                fi
-                            fi
-                            if [ \${pbfile} -eq 1 -a \${varsfolder} -eq 1 ] ; then 
-                                echo \${1}
-                            fi
-                        done
-                    }
-                    out=\$(changeModelVersion """ +context+"/"+model_name+ ")\n"+"echo \$out\n"
-                    ,returnStdout: true).trim()
-                println("foundModelPath ="+foundModelPath)    
-                if (foundModelPath==""){
-                    error "model files not found"
+           
+            def util = new Util()
+            (model_name,context)=util.getModelNameAndContext(source.model_path)
+            // println "extract model_name= "+model_name
+            // println "extract context= "+context
+            def foundModelPath = sh (
+                script: """#!/usr/bin/env bash
+                changeModelVersion()    
+                {
+                    context=\${1}
+                    for f in `ls \${context}`; do
+                        if [ -d "\${context}/\${f}" ]; then
+                            hasWanted "\${context}/\${f}" 
+                            changeModelVersion "\${context}/\${f}"
+                        fi
+                    done 
                 }
-                def afterPath = util.getModelVersionContextPath(foundModelPath,runtime.model_version)
-                println("change path ="+afterPath)
-                if (foundModelPath!=afterPath){
-                    sh """
-                    rm -rf  $afterPath
-                    echo "cleanup exists $afterPath"
-                    
-                    mv $foundModelPath $afterPath
-                    echo "change model version from $foundModelPath to $afterPath"
-                    """
+                hasWanted()
+                {
+                    pbfile=0 
+                    varsfolder=0
+                    folder=""
+                    for ff in `ls \${1}`; do
+                        if [[ -d "\${1}/\${ff}" && "\${ff}" = "variables" ]]; then
+                            varsfolder=1
+                        fi
+                        if [ -f "\${1}/\${ff}" ]; then
+                            FILE="\${1}/\${ff}"
+                            extension=\$(echo \${FILE} | cut -d . -f2)
+                            if [[ "pb"x = "\${extension}"x ]]; then
+                                pbfile=1
+                            fi
+                        fi
+                        if [ \${pbfile} -eq 1 -a \${varsfolder} -eq 1 ] ; then 
+                            echo \${1}
+                        fi
+                    done
                 }
-                util.checkAndExpandImageMap(image) //extract outImageObject
-                retry(build.retry_count) {
-                    def repoandtag = image.outImageRepoTag
-                    if (image.credentialId != '') {
-                        withCredentials([usernamePassword(credentialsId: image.credentialId, passwordVariable: 'PASSWD', usernameVariable: 'USER')]) {
-                            sh "docker login ${image.outImageRepo} -u ${USER} -p ${PASSWD}"
-                        }
-                    }
-                    def content= 'FROM _BASE_IMAGE_\n'+
-                        'ARG MODEL=chicago-taxi\n'+
-                        'ADD ${MODEL} ${MODEL_BASE_PATH}/${MODEL}\n'+
-                        'ENV MODEL_NAME=${MODEL}'
-                    content = content.replaceAll('_BASE_IMAGE_',image.baseImage)
-                    writeFile file:build.dockerfile_path, text: content
-                    sh """
-                        docker build -t ${repoandtag} -f ${build.dockerfile_path} ${build.arguments} ${context}
-                        docker push ${repoandtag}
-                    """
-                    if (image.credentialId != '') {
-                        sh "docker logout ${repoandtag}"
+                out=\$(changeModelVersion """ +context+"/"+model_name+ ")\n"+"echo \$out\n"
+                ,returnStdout: true).trim()
+            // println("foundModelPath ="+foundModelPath)    
+            if (foundModelPath==""){
+                error "model files not found"
+            }
+            def afterPath = util.getModelVersionContextPath(foundModelPath,runtime.model_version)
+            // println("change path ="+afterPath)
+            if (foundModelPath!=afterPath){
+                sh """
+                rm -rf  $afterPath
+                echo "cleanup exists $afterPath"
+                
+                mv $foundModelPath $afterPath
+                echo "change model version from $foundModelPath to $afterPath"
+                """
+            }
+            util.checkAndExpandImageMap(image) //extract outImageObject
+            retry(build.retry_count) {
+                def repoandtag = image.outImageRepoTag
+                if (image.credentialId != '') {
+                    withCredentials([usernamePassword(credentialsId: image.credentialId, passwordVariable: 'PASSWD', usernameVariable: 'USER')]) {
+                        sh "docker login ${image.outImageRepo} -u ${USER} -p ${PASSWD}"
                     }
                 }
-            // }
+                def content= 'FROM _BASE_IMAGE_\n'+
+                    'ARG MODEL=chicago-taxi\n'+
+                    'ADD ${MODEL} ${MODEL_BASE_PATH}/${MODEL}\n'+
+                    'ENV MODEL_NAME=${MODEL}'
+                content = content.replaceAll('_BASE_IMAGE_',image.baseImage)
+                writeFile file:build.dockerfile_path, text: content
+                sh """
+                    docker build -t ${repoandtag} -f ${build.dockerfile_path} ${build.arguments} ${context}
+                    docker push ${repoandtag}
+                """
+                if (image.credentialId != '') {
+                    sh "docker logout ${repoandtag}"
+                }
+            }
         }
     }catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e){
-        // echo "111 FlowInterruptedException"
-        // def cause = e.getCauses().get(0)
-        // if (cause instanceof org.jenkinsci.plugins.workflow.steps.TimeoutStepExecution.ExceededTimeout) {
-        //     echo "222 ExceededTimeout"
-        // }
         alaudaDevops.withCluster() {
             alaudaDevops.withProject(project) {
                 def isFound = alaudaDevops.selector(kind, instance_name).exists()
@@ -172,13 +165,11 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                 if (!isFound){
                     error "in catch, internal error: ${kind}/${instance_name} not found"
                 }
-                //
                 def wantedobject = alaudaDevops.selector(kind,instance_name).object()
                 wantedobject.status.state = err_state
                 alaudaDevops.apply(wantedobject)
             }
         }
-
         throw e
     }
 }
@@ -237,7 +228,6 @@ def deployModelService(Map modelservice){
                 if (!isFound){
                     error "deploy in catch, internal error: ${kind}/${instance_name} not found"
                 }
-                //
                 def wantedobject = alaudaDevops.selector(kind,instance_name).object()
                 wantedobject.status.state = err_state
                 alaudaDevops.apply(wantedobject)

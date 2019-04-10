@@ -34,10 +34,3 @@ def checkAndExpandImageMap(imageMap){
     imageMap.credentialId = outImageRepositoryObject.credentialId
     imageMap.type = outImageRepositoryObject.type
 }
-
-image = Map[
-    'outImageRepositoryObjectStr':"{\"credentialId\":\"aml-fy-fyalaudaorg\",\"repositoryPath\":\"index.alauda.cn/alaudaorg/testcodemix\",\"type\":\"input\",\"tag\":\"create1\",\"secretNamespace\":\"aml-fy\"}",
-]
-def nmap = checkAndExpandImageMap(image)
-println(nmap.outImageRepo)
-println(nmap.outImageRepoTag)
