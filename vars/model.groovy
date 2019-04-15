@@ -16,7 +16,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     def isFound = alaudaDevops.selector(kind, instance_name).exists()
                     echo "检查 ${kind}/${instance_name} 实例是否存在? ${isFound}"
                     if (!isFound){
-                        error "in catch, internal error: ${kind}/${instance_name} not found"
+                        error "internal error: ${kind}/${instance_name} not found"
                     }
                     //
                     def wantedobject = alaudaDevops.selector(kind,instance_name).object()
@@ -163,7 +163,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                 def isFound = alaudaDevops.selector(kind, instance_name).exists()
                 echo "检查 ${kind}/${instance_name} 实例是否存在? ${isFound}"
                 if (!isFound){
-                    error "in catch, internal error: ${kind}/${instance_name} not found"
+                    error "build in catch, internal error: ${kind}/${instance_name} not found"
                 }
                 def wantedobject = alaudaDevops.selector(kind,instance_name).object()
                 wantedobject.status.state = err_state
