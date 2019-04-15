@@ -22,6 +22,10 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     //
                     def wantedobject = alaudaDevops.selector(kind,instance_name).object()
                     // wantedobject.status.state = start_state
+                    println wantedobject.metaClass
+                    wantedobject['status']=['state':start_state]
+                    println wantedobject.status.state  
+                    println "---- "
                     if ("${wantedobject.metaClass.hasProperty(wantedobject,'status')}" == "null"){
                         println "in build if"
                         wantedobject.metaClass.status=['state':start_state]
