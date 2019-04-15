@@ -23,6 +23,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     def wantedobject = alaudaDevops.selector(kind,instance_name).object()
                     // wantedobject.status.state = start_state
                     wantedobject['status']=['state':start_state]
+                    println("applyed"+ wantedobject)
                     alaudaDevops.apply(wantedobject)
                 }
             }
@@ -170,6 +171,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                 def wantedobject = alaudaDevops.selector(kind,instance_name).object()
                 // wantedobject['status']['state'] = err_state
                 wantedobject['status']=['state':err_state]
+                println("applyed"+ wantedobject)
                 alaudaDevops.apply(wantedobject)
             }
         }
@@ -199,6 +201,7 @@ def deployModelService(Map modelservice){
                 // wantedobject['status']['state'] = start_state
                 wantedobject['status']=['state':start_state]
                 alaudaDevops.apply(wantedobject)
+                println("applyed"+ wantedobject)
                 //watch
                 timeout(time: _deploy_timeout_, unit: _deploy_timeout_unit_){
                     wantedcrd.watch {
@@ -235,6 +238,7 @@ def deployModelService(Map modelservice){
                 def wantedobject = alaudaDevops.selector(kind,instance_name).object()
                 // wantedobject['status']['state'] = err_state
                 wantedobject['status']=['state':err_state]
+                println("applyed"+ wantedobject)
                 alaudaDevops.apply(wantedobject)
             }
         }
