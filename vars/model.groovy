@@ -11,6 +11,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
     try{
         timeout(time: runtime.timeout_value, unit: runtime.timeout_unit){
             alaudaDevops.withCluster() {
+                alaudaDevops.verbose()
             // 指定namespace
                 alaudaDevops.withProject(project) {
                     def isFound = alaudaDevops.selector(kind, instance_name).exists()
