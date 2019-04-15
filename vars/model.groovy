@@ -22,7 +22,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     //
                     def wantedobject = alaudaDevops.selector(kind,instance_name).object()
                     // wantedobject.status.state = start_state
-                    wantedobject['status'].['state'] = start_state
+                    wantedobject['status']['state'] = start_state
                     alaudaDevops.apply(wantedobject)
                 }
             }
@@ -168,7 +168,7 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     error "build in catch, internal error: ${kind}/${instance_name} not found"
                 }
                 def wantedobject = alaudaDevops.selector(kind,instance_name).object()
-                wantedobject['status'].['state'] = err_state
+                wantedobject['status']['state'] = err_state
                 alaudaDevops.apply(wantedobject)
             }
         }
@@ -195,7 +195,7 @@ def deployModelService(Map modelservice){
                 }
                 def wantedcrd = alaudaDevops.selector(kind,instance_name)
                 wantedobject =  wantedcrd.object()
-                wantedobject['status'].['state'] = start_state
+                wantedobject['status']['state'] = start_state
                 alaudaDevops.apply(wantedobject)
                 //watch
                 timeout(time: _deploy_timeout_, unit: _deploy_timeout_unit_){
@@ -231,7 +231,7 @@ def deployModelService(Map modelservice){
                     error "deploy in catch, internal error: ${kind}/${instance_name} not found"
                 }
                 def wantedobject = alaudaDevops.selector(kind,instance_name).object()
-                wantedobject['status'].['state'] = err_state
+                wantedobject['status']['state'] = err_state
                 alaudaDevops.apply(wantedobject)
             }
         }
