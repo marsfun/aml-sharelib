@@ -22,7 +22,15 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     //
                     def wantedobject = alaudaDevops.selector(kind,instance_name).object()
                     // wantedobject.status.state = start_state
-                    wantedobject['status']['state'] = start_state
+                    if ("${wantedobject.metaClass.hasProperty(wantedobject,'status')}" == "null"){
+                        println "in build if"
+                        wantedobject.metaClass.status=['state':start_state]
+                    }else{
+                        println "in build else"
+                        wantedobject['status']['state'] = start_state
+                    }
+
+                    
                     alaudaDevops.apply(wantedobject)
                 }
             }
@@ -168,7 +176,17 @@ def buildImage(Map runtime,Map source,Map image,Map build){
                     error "build in catch, internal error: ${kind}/${instance_name} not found"
                 }
                 def wantedobject = alaudaDevops.selector(kind,instance_name).object()
-                wantedobject['status']['state'] = err_state
+                // wantedobject['status']['state'] = err_state
+
+                if ("${wantedobject.metaClass.hasProperty(wantedobject,'status')}" == "null"){
+                    println "in build catch if2"
+                    wantedobject.metaClass.status=['state':err_state]
+                }else{
+                    println "in build catch else2"
+                    wantedobject['status']['state'] = err_state
+                }
+
+
                 alaudaDevops.apply(wantedobject)
             }
         }
@@ -195,7 +213,17 @@ def deployModelService(Map modelservice){
                 }
                 def wantedcrd = alaudaDevops.selector(kind,instance_name)
                 wantedobject =  wantedcrd.object()
-                wantedobject['status']['state'] = start_state
+                // wantedobject['status']['state'] = start_state
+
+                if ("${wantedobject.metaClass.hasProperty(wantedobject,'status')}" == "null"){
+                    println "in deploy catch if"
+                    wantedobject.metaClass.status=['state':start_state]
+                }else{
+                    println "in deploy catch else"
+                    wantedobject['status']['state'] = start_state
+                }
+
+
                 alaudaDevops.apply(wantedobject)
                 //watch
                 timeout(time: _deploy_timeout_, unit: _deploy_timeout_unit_){
@@ -231,7 +259,15 @@ def deployModelService(Map modelservice){
                     error "deploy in catch, internal error: ${kind}/${instance_name} not found"
                 }
                 def wantedobject = alaudaDevops.selector(kind,instance_name).object()
-                wantedobject['status']['state'] = err_state
+                // wantedobject['status']['state'] = err_state
+                if ("${wantedobject.metaClass.hasProperty(wantedobject,'status')}" == "null"){
+                    println "in deploy catch if2"
+                    wantedobject.metaClass.status=['state':err_state]
+                }else{
+                    println "in deploy catch else2"
+                    wantedobject['status']['state'] = err_state
+                }
+
                 alaudaDevops.apply(wantedobject)
             }
         }
